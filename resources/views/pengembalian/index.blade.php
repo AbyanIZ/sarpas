@@ -67,13 +67,9 @@
 
 <body
     class="min-h-screen font-sans bg-[radial-gradient(circle_at_top_left,_#202020,_#121212)] text-white relative overflow-x-hidden">
-
-    <!-- Background pattern -->
     <div class="absolute inset-0 z-0"
         style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 10 10\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ccircle cx=\'1\' cy=\'1\' r=\'0.5\' fill=\'%23666\'/%3E%3C/svg%3E'); opacity: 0.05;">
     </div>
-
-    <!-- Animated blobs -->
     <div
         class="absolute w-[200px] h-[200px] bg-[#5d6abf] rounded-full opacity-25 bottom-[-60px] left-[-60px] blur-md z-0">
     </div>
@@ -91,7 +87,6 @@
         class="absolute w-[180px] h-[180px] bg-[#7a6ee9] rounded-full opacity-20 top-[35%] left-[35%] blur-lg z-0 animate-float">
     </div>
 
-    <!-- Navbar -->
     <nav
         class="bg-[#1e1e1e]/95 backdrop-blur-md px-8 py-4 shadow-lg z-10 relative flex justify-between items-center border-b border-[#333]/50">
         <h1
@@ -118,8 +113,7 @@
             @if (session('success'))
                 <div id="success-alert"
                     class="fixed top-6 left-1/2 -translate-x-1/2 bg-green-600/90 text-white px-6 py-3 rounded-xl shadow-xl z-50 border border-green-500/30 flex items-center">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    {{ session('success') }}
+                    <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
                 </div>
                 <script>
                     document.addEventListener('DOMContentLoaded', () => {
@@ -145,24 +139,6 @@
                 <h2 class="text-xl font-bold flex items-center">
                     <i class="fas fa-clipboard-list mr-3 text-[#6aa6ff]"></i>Daftar Pengembalian Barang
                 </h2>
-                <a href="{{ route('pengembalian.create') }}"
-                    class="btn-primary text-white px-4 py-2 rounded-lg flex items-center">
-                    <i class="fas fa-plus mr-2"></i>Ajukan Pengembalian
-                </a>
-            </div>
-
-            <!-- Counter Card -->
-            <div
-                class="mb-6 px-6 py-4 bg-gradient-to-r from-[#1f1f1f] to-[#2a2a2a] rounded-xl shadow-lg border border-[#333]/50 w-max">
-                <div class="flex items-center">
-                    <div class="w-12 h-12 rounded-full bg-[#6aa6ff]/10 flex items-center justify-center mr-4">
-                        <i class="fas fa-boxes text-[#6aa6ff]"></i>
-                    </div>
-                    <div>
-                        <p class="text-sm text-gray-300">Total Pengembalian</p>
-                        <p class="text-2xl font-bold">{{ $totalPengembalian }}</p>
-                    </div>
-                </div>
             </div>
 
             <div
@@ -173,40 +149,25 @@
                             <tr>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-user mr-1 text-[#6aa6ff]"></i> Nama
-                                </th>
+                                    Nama</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-box mr-1 text-[#6aa6ff]"></i> Barang
-                                </th>
+                                    Foto</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-camera mr-1 text-[#6aa6ff]"></i> Foto
-                                </th>
+                                    Keterangan</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-layer-group mr-1 text-[#6aa6ff]"></i> Jumlah
-                                </th>
+                                    Status</th>
                                 <th
                                     class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-info-circle mr-1 text-[#6aa6ff]"></i> Status
-                                </th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-calendar-alt mr-1 text-[#6aa6ff]"></i> Tanggal
-                                </th>
-                                <th
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-cog mr-1 text-[#6aa6ff]"></i> Aksi
-                                </th>
+                                    Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="bg-[#1f1f1f]/30 divide-y divide-gray-700/30">
                             @forelse($pengembalians as $pengembalian)
                                 <tr class="hover:bg-[#2a2a2a]/50 transition-colors">
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $pengembalian->user->name }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ $pengembalian->barang?->nama_barang ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($pengembalian->image)
                                             <a href="{{ asset('storage/' . $pengembalian->image) }}" target="_blank"
@@ -219,7 +180,9 @@
                                             <span class="text-gray-400">-</span>
                                         @endif
                                     </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">{{ $pengembalian->jumlah }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                        {{ $pengembalian->keterangan ?? '-' }}
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($pengembalian->status == 'pending')
                                             <span
@@ -242,10 +205,6 @@
                                                 <i class="fas fa-question-circle mr-1"></i>Unknown
                                             </span>
                                         @endif
-                                    </td>
-
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        {{ \Carbon\Carbon::parse($pengembalian->tanggal_pengembalian)->format('d M Y') }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($pengembalian->status == 'pending')
@@ -274,7 +233,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="px-6 py-4 text-center text-gray-400">
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-400">
                                         <i class="fas fa-inbox mr-2"></i>Belum ada data pengembalian
                                     </td>
                                 </tr>

@@ -10,35 +10,35 @@ use Illuminate\Support\Facades\Log;
 
 class ApiPeminjamanController extends Controller
 {
-  public function index()
-{
-    try {
-        $peminjamans = Peminjaman::with([
-            'user:id,name',
-            'barang:id,nama_barang as name,stock'
-        ])
-        ->orderBy('created_at', 'desc')
-        ->get();
+    public function index()
+    {
+        try {
+            $peminjamans = Peminjaman::with([
+                'user:id,name',
+                'barang:id,nama_barang as name,stock'
+            ])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Daftar semua peminjaman',
-            'data' => $peminjamans
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Gagal mengambil data peminjaman: ' . $e->getMessage(), [
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-        ]);
+            return response()->json([
+                'status' => true,
+                'message' => 'Daftar semua peminjaman',
+                'data' => $peminjamans
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Gagal mengambil data peminjaman: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
 
-        return response()->json([
-            'status' => false,
-            'message' => 'Terjadi kesalahan saat mengambil data peminjaman.',
-            'error' => $e->getMessage(),
-            'data' => []
-        ], 500);
+            return response()->json([
+                'status' => false,
+                'message' => 'Terjadi kesalahan saat mengambil data peminjaman.',
+                'error' => $e->getMessage(),
+                'data' => []
+            ], 500);
+        }
     }
-}
 
 
 
@@ -65,6 +65,7 @@ class ApiPeminjamanController extends Controller
         $request->validate([
             'barang_id' => 'required|exists:barangs,id',
             'jumlah' => 'required|integer|min:1',
+            'jatuh_tempo' => 'required|date',
         ]);
 
         $barang = Barang::findOrFail($request->barang_id);
@@ -82,7 +83,7 @@ class ApiPeminjamanController extends Controller
             'jumlah' => $request->jumlah,
             'status' => 'pending',
             'tanggal_pinjam' => now()->toDateString(),
-            'tanggal_kembali' => Carbon::now()->addDays(7)->toDateString(),
+            'tanggal_kembali' => $request->jatuh_tempo,
         ]);
 
         return response()->json([
@@ -91,6 +92,7 @@ class ApiPeminjamanController extends Controller
             'data' => $peminjaman,
         ], 201);
     }
+
 
     public function approve($id)
     {

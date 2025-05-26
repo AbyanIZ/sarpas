@@ -26,7 +26,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/peminjaman', [ApiPeminjamanController::class, 'index']);
     Route::post('/peminjaman/{id}/approve', [ApiPeminjamanController::class, 'approve']);
     Route::post('/peminjaman/{id}/reject', [ApiPeminjamanController::class, 'reject']);
+});
 
-    Route::post('/pengembalian', [ApiPengembalianController::class, 'store']);
-    Route::get('/pengembalian', [ApiPengembalianController::class, 'index']); // opsional
+Route::middleware('auth:sanctum')->group(function () {
+    // ... rute lainnya
+
+    // Rute Pengembalian
+    Route::post('/pengembalian/{peminjaman_id}', [ApiPengembalianController::class, 'store']); // Menggunakan ID peminjaman di URL
+    Route::get('/pengembalian', [ApiPengembalianController::class, 'index']); // Untuk melihat daftar pengembalian
+    Route::post('/pengembalian/{id}/approve', [ApiPengembalianController::class, 'approve']); // Approve pengembalian
+    Route::post('/pengembalian/{id}/reject', [ApiPengembalianController::class, 'reject']); // Reject pengembalian
+
+    // Opsional - jika butuh rute khusus
+    Route::get('/pengembalian/user', [ApiPengembalianController::class, 'userReturns']); // Pengembalian oleh user tertentu
 });

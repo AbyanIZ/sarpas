@@ -106,41 +106,45 @@
                 <h2 class="text-xl font-bold flex items-center">
                     <i class="fas fa-list-ol mr-3 text-[#6aa6ff]"></i>Daftar Peminjaman Barang
                 </h2>
-                <a href="{{ route('peminjaman.create') }}" class="btn-primary text-white px-4 py-2 rounded-lg flex items-center">
-                    <i class="fas fa-plus mr-2"></i>Pinjam Barang
-                </a>
             </div>
 
             <div class="data-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl shadow-lg border border-[#333]/50">
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-700/50">
+                    <table class="w-full divide-y divide-gray-700/50">
                         <thead class="bg-gray-800/50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     <i class="fas fa-user mr-1 text-[#6aa6ff]"></i> Nama
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     <i class="fas fa-box mr-1 text-[#6aa6ff]"></i> Barang
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <i class="fas fa-layer-group mr-1 text-[#6aa6ff]"></i> Kategori
+                                </th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     <i class="fas fa-layer-group mr-1 text-[#6aa6ff]"></i> Jumlah
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     <i class="fas fa-info-circle mr-1 text-[#6aa6ff]"></i> Status
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                                    <i class="fas fa-calendar-alt mr-1 text-[#6aa6ff]"></i> Tanggal
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <i class="fas fa-calendar-alt mr-1 text-[#6aa6ff]"></i> Tanggal Pinjam
                                 </th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
+                                    <i class="fas fa-calendar-check mr-1 text-[#6aa6ff]"></i> Tanggal Kembali
+                                </th>
+                                <th class="px-6 py-3 text-xs font-medium text-gray-300 uppercase tracking-wider">
                                     <i class="fas fa-cog mr-1 text-[#6aa6ff]"></i> Aksi
                                 </th>
                             </tr>
                         </thead>
                         <tbody class="bg-[#1f1f1f]/30 divide-y divide-gray-700/30">
                             @forelse ($peminjamans as $peminjaman)
-                                <tr class="hover:bg-[#2a2a2a]/50 transition-colors">
+                                <tr class="hover:bg-[#2a2a2a]/50 transition-colors text-center">
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $peminjaman->user->name }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $peminjaman->barang->nama_barang }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ $peminjaman->barang->kategori->nama_kategori ?? '-' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $peminjaman->jumlah }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($peminjaman->status == 'pending')
@@ -162,6 +166,9 @@
                                         @endif
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $peminjaman->created_at->format('d M Y') }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {{ $peminjaman->tanggal_kembali ? \Carbon\Carbon::parse($peminjaman->tanggal_kembali)->format('d M Y') : '-' }}
+                                    </td>
                                     <td class="px-6 py-4 whitespace-nowrap">
                                         @if ($peminjaman->status == 'pending')
                                             <div class="flex space-x-2">
@@ -185,7 +192,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                                    <td colspan="8" class="px-6 py-4 text-center text-gray-400">
                                         <i class="fas fa-inbox mr-2"></i>Belum ada data peminjaman
                                     </td>
                                 </tr>
