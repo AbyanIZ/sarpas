@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('barang_id')->constrained()->onDelete('cascade');
             $table->date('tanggal_pinjam');
             $table->date('tanggal_kembali')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected', 'selesai'])->default('pending');
             $table->timestamps();
         });
     }

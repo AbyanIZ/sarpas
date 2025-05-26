@@ -17,4 +17,9 @@ class Barang extends Model
     {
         return $this->belongsTo(KategoriBarang::class);
     }
+    public function peminjamans()
+{
+    return $this->hasMany(Peminjaman::class);
+}
+
 }

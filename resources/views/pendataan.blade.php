@@ -5,129 +5,158 @@
     <meta charset="UTF-8">
     <title>Pendataan - SARPAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes drift {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(12px); }
+        }
+
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animate-drift { animation: drift 8s ease-in-out infinite; }
+
+        .sidebar-item { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar-item:hover { transform: translateX(4px); }
+
+        .data-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(106, 166, 255, 0.1);
+            background-color: #2a2a2a;
+        }
+    </style>
 </head>
 
-<body
-    class="min-h-screen font-sans bg-[radial-gradient(circle_at_top_left,_#202020,_#121212)] text-white relative overflow-hidden">
+<body class="min-h-screen font-sans bg-[radial-gradient(circle_at_top_left,_#202020,_#121212)] text-white relative overflow-hidden">
+
+    <!-- Background pattern -->
     <div class="absolute inset-0 z-0"
-        style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 10 10\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ccircle cx=\'1\' cy=\'1\' r=\'0.5\' fill=\'%23666\'/%3E%3C/svg%3E'); opacity: 0.03;">
-    </div>
-    <div
-        class="absolute w-[200px] h-[200px] bg-[#5d6abf] rounded-full opacity-30 bottom-[-60px] left-[-60px] blur-sm z-0">
-    </div>
-    <div
-        class="absolute w-[300px] h-[300px] bg-[#2f3e8a] rounded-full opacity-30 bottom-[-100px] right-[-80px] blur-sm z-0">
-    </div>
-    <div class="absolute w-[120px] h-[120px] bg-[#6a5acd] rounded-full opacity-30 top-[-40px] right-[-40px] blur-sm z-0">
-    </div>
-    <div class="absolute w-[150px] h-[150px] bg-[#7d85e1] rounded-full opacity-25 top-[20%] left-[5%] blur-sm z-0"></div>
-    <div
-        class="absolute w-[100px] h-[100px] bg-[#4d59c6] rounded-full opacity-30 top-[30%] right-[10%] blur-sm z-0 animate-float">
-    </div>
-    <div
-        class="absolute w-[250px] h-[250px] bg-[#3a3f7d] rounded-full opacity-20 bottom-[10%] right-[30%] blur-sm z-0 animate-drift">
-    </div>
-    <div
-        class="absolute w-[180px] h-[180px] bg-[#7a6ee9] rounded-full opacity-25 top-[35%] left-[35%] blur-md z-0 animate-float">
-    </div>
-    <div
-        class="absolute w-[140px] h-[140px] bg-[#5f6ee6] rounded-full opacity-20 top-[9%] right-[18%] blur-md ring-2 ring-[#6aa6ff]/20 z-0 animate-drift">
+        style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 10 10\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Ccircle cx=\'1\' cy=\'1\' r=\'0.5\' fill=\'%23666\'/%3E%3C/svg%3E'); opacity: 0.05;">
     </div>
 
-    <nav class="bg-[#1e1e1e]/90 backdrop-blur-md px-10 py-4 shadow-lg z-10 relative flex justify-between items-center">
-        <h1 class="text-3xl font-semibold">Pendataan</h1>
+    <!-- Animated blobs -->
+    <div class="absolute w-[200px] h-[200px] bg-[#5d6abf] rounded-full opacity-25 bottom-[-60px] left-[-60px] blur-md z-0"></div>
+    <div class="absolute w-[300px] h-[300px] bg-[#2f3e8a] rounded-full opacity-25 bottom-[-100px] right-[-80px] blur-md z-0"></div>
+    <div class="absolute w-[120px] h-[120px] bg-[#6a5acd] rounded-full opacity-25 top-[-40px] right-[-40px] blur-md z-0"></div>
+    <div class="absolute w-[150px] h-[150px] bg-[#7d85e1] rounded-full opacity-20 top-[20%] left-[5%] blur-md z-0"></div>
+    <div class="absolute w-[100px] h-[100px] bg-[#4d59c6] rounded-full opacity-25 top-[30%] right-[10%] blur-md z-0 animate-float"></div>
+    <div class="absolute w-[180px] h-[180px] bg-[#7a6ee9] rounded-full opacity-20 top-[35%] left-[35%] blur-lg z-0 animate-float"></div>
 
+    <!-- Navbar -->
+    <nav class="bg-[#1e1e1e]/95 backdrop-blur-md px-8 py-4 shadow-lg z-10 relative flex justify-between items-center border-b border-[#333]/50">
+        <h1 class="text-2xl font-semibold bg-gradient-to-r from-[#6aa6ff] to-[#a162e8] bg-clip-text text-transparent">
+            <i class="fas fa-clipboard-list mr-2"></i>Pendataan
+        </h1>
         <div class="flex items-center gap-4">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="text-white hover:text-[#6aa6ff] transition duration-200">Log out</button>
+                <button type="submit" class="text-gray-300 hover:text-[#6aa6ff] transition duration-200 flex items-center gap-2">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log out</span>
+                </button>
             </form>
-            <div class="w-10 h-10 flex items-center">
-                <img src="assets/OIP.jpeg" alt="Profile" class="w-8 h-8 rounded-full object-cover">
+            <div class="w-9 h-9 flex items-center rounded-full overflow-hidden border-2 border-[#6aa6ff]/50">
+                <img src="assets/OIP.jpeg" alt="Profile" class="w-full h-full object-cover">
             </div>
         </div>
     </nav>
-    </div>
-    </nav>
 
     <div class="flex">
-        <aside class="w-64 bg-[#181818]/80 py-10 px-6 border-r border-[#333] min-h-screen relative z-10">
-            <ul class="space-y-4">
-                <li><a href="{{ route('dashboard') }}"
-                        class="block py-5 px-5 rounded hover:bg-[#2f2f2f] transition">Dashboard</a></li>
-                <li><a href="{{ route('pengguna') }}"
-                        class="block py-5 px-5 rounded hover:bg-[#2f2f2f] transition">Pengguna</a></li>
-                <li><a href="{{ route('pendataan') }}" class="block py-5 px-5 rounded bg-[#2f2f2f]">Pendataan</a></li>
-                <li><a href="{{ route('laporan') }}"
-                        class="block py-5 px-5 rounded hover:bg-[#2f2f2f] transition">Laporan</a></li>
+        <!-- Sidebar -->
+        <aside class="w-64 bg-[#181818]/90 py-8 px-6 border-r border-[#333]/50 min-h-screen relative z-10 backdrop-blur-sm">
+            <ul class="space-y-3">
+                <li>
+                    <a href="{{ route('dashboard') }}" class="flex items-center py-4 px-5 rounded-lg hover:bg-[#2f2f2f]/50 transition sidebar-item">
+                        <i class="fas fa-tachometer-alt text-gray-300 mr-4"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pengguna') }}" class="flex items-center py-4 px-5 rounded-lg hover:bg-[#2f2f2f]/50 transition sidebar-item">
+                        <i class="fas fa-users text-gray-300 mr-4"></i>
+                        <span>Pengguna</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('pendataan') }}" class="flex items-center py-4 px-5 rounded-lg bg-gradient-to-r from-[#2f2f2f] to-[#2f2f2f]/70 hover:from-[#333] hover:to-[#333]/70 transition shadow-md sidebar-item">
+                        <i class="fas fa-clipboard-list text-[#6aa6ff] mr-4"></i>
+                        <span class="font-medium">Pendataan</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('laporan') }}" class="flex items-center py-4 px-5 rounded-lg hover:bg-[#2f2f2f]/50 transition sidebar-item">
+                        <i class="fas fa-file-alt text-gray-300 mr-4"></i>
+                        <span>Laporan</span>
+                    </a>
+                </li>
             </ul>
         </aside>
-        <main class="flex-1 p-10 z-10">
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                <a href="{{ route('kategori.index') }}"
-                    class="block bg-[#1f1f1f]/80 p-6 rounded-2xl shadow-lg border border-[#333] hover:bg-[#2a2a2a] transition">
-                    <h2 class="text-xl font-bold mb-4">Pendataan Kategori Barang</h2>
-                    <p class="text-sm text-gray-400">Berisi Kategori Data-Data Barang</p>
-                </a>
-
-
-                <a href="{{ route('barang.index') }}" class="block">
-                    <div
-                        class="bg-[#1f1f1f]/80 p-6 rounded-2xl shadow-lg border border-[#333] hover:bg-[#2a2a2a] transition cursor-pointer">
-                        <h2 class="text-xl font-bold mb-4">Pendataan Barang</h2>
-                        <p class="text-sm text-gray-400">Menambahkan Data Barang</p>
+                <!-- Kategori Barang Card -->
+                <a href="{{ route('kategori.index') }}" class="data-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl border border-[#333]/50">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-[#6aa6ff]/10 flex items-center justify-center mr-4">
+                            <i class="fas fa-tags text-[#6aa6ff] text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Pendataan Kategori Barang</h2>
+                            <p class="text-sm text-gray-400 mt-1">Berisi Kategori Data-Data Barang</p>
+                        </div>
                     </div>
                 </a>
-                <a href="{{ route('peminjaman.index') }}"
-                    class="block bg-[#1f1f1f]/80 p-6 rounded-2xl shadow-lg border border-[#333] hover:bg-[#2a2a2a] transition">
-                    <h2 class="text-xl font-bold mb-4">Pendataan Peminjaman Barang</h2>
-                    <p class="text-sm text-gray-400">Kelola semua data peminjaman barang</p>
+
+                <!-- Barang Card -->
+                <a href="{{ route('barang.index') }}" class="data-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl border border-[#333]/50">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-[#a162e8]/10 flex items-center justify-center mr-4">
+                            <i class="fas fa-box-open text-[#a162e8] text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Pendataan Barang</h2>
+                            <p class="text-sm text-gray-400 mt-1">Menambahkan Data Barang</p>
+                        </div>
+                    </div>
                 </a>
-                <div
-                    class="bg-[#1f1f1f]/80 p-6 rounded-2xl shadow-lg border border-[#333] hover:bg-[#2a2a2a] transition">
-                    <h2 class="text-xl font-bold mb-4">Pendataan Pengembalian Barang</h2>
-                    <p class="text-sm text-gray-400">by one deck</p>
-                </div>
+
+                <!-- Peminjaman Card -->
+                <a href="{{ route('peminjaman.index') }}" class="data-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl border border-[#333]/50">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-[#5abf6a]/10 flex items-center justify-center mr-4">
+                            <i class="fas fa-hand-holding text-[#5abf6a] text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Pendataan Peminjaman Barang</h2>
+                            <p class="text-sm text-gray-400 mt-1">Kelola semua data peminjaman barang</p>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Pengembalian Card -->
+                <a href="{{route('pengembalian.index')}}" class="data-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl border border-[#333]/50">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-[#e8a162]/10 flex items-center justify-center mr-4">
+                            <i class="fas fa-undo text-[#e8a162] text-xl"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold">Pendataan Pengembalian Barang</h2>
+                            <p class="text-sm text-gray-400 mt-1">Kelola semua data pengembalian barang</p>
+                        </div>
+                    </div>
+                </a>
             </div>
         </main>
     </div>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            @keyframes float {
-
-                0%,
-                100% {
-                    transform: translateY(0);
-                }
-
-                50% {
-                    transform: translateY(-20px);
-                }
-            }
-
-            @keyframes drift {
-                0% {
-                    transform: translate(0, 0) rotate(0deg);
-                }
-
-                50% {
-                    transform: translate(10px, -10px) rotate(4deg);
-                }
-
-                100% {
-                    transform: translate(0, 0) rotate(0deg);
-                }
-            }
-
-            .animate-float {
-                animation: float 2.5s ease-in-out infinite;
-            }
-
-            .animate-drift {
-                animation: drift 3.5s ease-in-out infinite;
-            }
-        }
-    </style>
 </body>
-
 </html>

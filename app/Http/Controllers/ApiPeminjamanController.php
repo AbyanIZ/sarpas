@@ -6,24 +6,45 @@ use App\Models\Peminjaman;
 use App\Models\Barang;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 class ApiPeminjamanController extends Controller
 {
-    public function index()
-    {
-        $peminjamans = Peminjaman::with(['user:id,name,email', 'barang:id,nama,stock'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+  public function index()
+{
+    try {
+        $peminjamans = Peminjaman::with([
+            'user:id,name',
+            'barang:id,nama_barang as name,stock'
+        ])
+        ->orderBy('created_at', 'desc')
+        ->get();
 
         return response()->json([
             'status' => true,
             'message' => 'Daftar semua peminjaman',
             'data' => $peminjamans
         ]);
+    } catch (\Exception $e) {
+        Log::error('Gagal mengambil data peminjaman: ' . $e->getMessage(), [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ]);
+
+        return response()->json([
+            'status' => false,
+            'message' => 'Terjadi kesalahan saat mengambil data peminjaman.',
+            'error' => $e->getMessage(),
+            'data' => []
+        ], 500);
     }
+}
+
+
 
     public function show($id)
     {
-        $peminjaman = Peminjaman::with(['user:id,name,email', 'barang:id,nama,stock'])->find($id);
+        $peminjaman = Peminjaman::with(['user:id,name', 'barang:id,nama_barang as name,stock']);
 
         if ($peminjaman) {
             return response()->json([

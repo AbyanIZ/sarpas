@@ -11,7 +11,8 @@ class PeminjamanController extends Controller
 {
     public function index()
     {
-        $peminjamans = Peminjaman::with('user', 'barang')->get();
+        // Tampilkan data terbaru di atas
+        $peminjamans = Peminjaman::with(['user', 'barang'])->latest()->get();
         return view('peminjaman.index', compact('peminjamans'));
     }
 
@@ -37,6 +38,7 @@ class PeminjamanController extends Controller
         if ($barang->stock < $request->jumlah) {
             return back()->with('error', 'Stok barang tidak mencukupi. Stok saat ini: ' . $barang->stock);
         }
+
         Peminjaman::create([
             'user_id' => $request->user_id,
             'barang_id' => $request->barang_id,
@@ -52,12 +54,14 @@ class PeminjamanController extends Controller
     public function approve($id)
     {
         $peminjaman = Peminjaman::with('barang')->findOrFail($id);
+
         if ($peminjaman->barang->stock < $peminjaman->jumlah) {
-            return back()->withErrors('Stok barang tidak cukup untuk peminjaman. Stok saat ini: ' . $peminjaman->barang->stock);
+            return back()->withErrors(['stok' => 'Stok barang tidak cukup untuk peminjaman. Stok saat ini: ' . $peminjaman->barang->stock]);
         }
 
-        $peminjaman->status = 'approved';
-        $peminjaman->save();
+        $peminjaman->update(['status' => 'approved']);
+
+        // Kurangi stok barang
         $peminjaman->barang->decrement('stock', $peminjaman->jumlah);
 
         return back()->with('success', 'Peminjaman disetujui dan stok barang telah dikurangi.');
@@ -66,8 +70,7 @@ class PeminjamanController extends Controller
     public function reject($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
-        $peminjaman->status = 'rejected';
-        $peminjaman->save();
+        $peminjaman->update(['status' => 'rejected']);
 
         return back()->with('error', 'Peminjaman ditolak.');
     }
