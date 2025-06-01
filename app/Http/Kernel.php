@@ -8,15 +8,14 @@ class Kernel extends HttpKernel
 {
     /**
      * The application's global HTTP middleware stack.
-     *
-     * These middleware are run during every request to your application.
+     * These middleware run during every request.
      *
      * @var array<int, class-string|string>
      */
     protected $middleware = [
         // \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
-        \Illuminate\Http\Middleware\HandleCors::class,
+        \Illuminate\Http\Middleware\HandleCors::class, // Middleware CORS Laravel bawaan
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
@@ -39,8 +38,8 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, // Middleware for Sanctum authentication
-            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api', // Throttle rate limiting
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, // jika pakai Sanctum
+            'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
@@ -48,7 +47,7 @@ class Kernel extends HttpKernel
     /**
      * The application's middleware aliases.
      *
-     * Aliases may be used instead of class names to conveniently assign middleware to routes and groups.
+     * Aliases can be used to assign middleware to routes or groups.
      *
      * @var array<string, class-string|string>
      */
@@ -64,5 +63,7 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        // Jika ingin pakai alias cors, bisa aktifkan ini:
+        // 'cors' => \Fruitcake\Cors\HandleCors::class,
     ];
 }

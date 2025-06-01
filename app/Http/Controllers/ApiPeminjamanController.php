@@ -5,24 +5,33 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use App\Models\Barang;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
 class ApiPeminjamanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Unauthorized',
+                ], 401);
+            }
+
             $peminjamans = Peminjaman::with([
                 'user:id,name',
                 'barang:id,nama_barang as name,stock'
             ])
+                ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
                 ->get();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Daftar semua peminjaman',
+                'message' => 'Daftar peminjaman user',
                 'data' => $peminjamans
             ]);
         } catch (\Exception $e) {
@@ -40,11 +49,9 @@ class ApiPeminjamanController extends Controller
         }
     }
 
-
-
     public function show($id)
     {
-        $peminjaman = Peminjaman::with(['user:id,name', 'barang:id,nama_barang as name,stock']);
+        $peminjaman = Peminjaman::with(['user:id,name', 'barang:id,nama_barang as name,stock'])->find($id);
 
         if ($peminjaman) {
             return response()->json([
@@ -68,6 +75,15 @@ class ApiPeminjamanController extends Controller
             'jatuh_tempo' => 'required|date',
         ]);
 
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
         $barang = Barang::findOrFail($request->barang_id);
 
         if ($barang->stock < $request->jumlah) {
@@ -78,7 +94,7 @@ class ApiPeminjamanController extends Controller
         }
 
         $peminjaman = Peminjaman::create([
-            'user_id' => $request->user()->id,
+            'user_id' => $user->id,
             'barang_id' => $request->barang_id,
             'jumlah' => $request->jumlah,
             'status' => 'pending',
@@ -92,7 +108,6 @@ class ApiPeminjamanController extends Controller
             'data' => $peminjaman,
         ], 201);
     }
-
 
     public function approve($id)
     {

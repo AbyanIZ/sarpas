@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Pengembalian;
 use App\Models\Peminjaman;
 use App\Models\Barang;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class PengembalianController extends Controller
 {
@@ -14,7 +14,6 @@ class PengembalianController extends Controller
     {
         // Menampilkan pengembalian terbaru di atas
         $pengembalians = Pengembalian::with(['barang', 'user'])->latest()->get();
-
         $totalPengembalian = $pengembalians->count();
 
         return view('pengembalian.index', compact('pengembalians', 'totalPengembalian'));
@@ -48,7 +47,7 @@ class PengembalianController extends Controller
             'barang_id' => 'required|exists:barangs,id',
             'jumlah' => 'required|integer|min:1',
             'tanggal_pengembalian' => 'required|date',
-            'foto_pengembalian' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $user_id = auth()->id();
@@ -75,7 +74,7 @@ class PengembalianController extends Controller
             return back()->withErrors(['barang_id' => 'Pengembalian untuk barang ini sudah diajukan.'])->withInput();
         }
 
-        $fotoPath = $request->file('foto_pengembalian')->store('pengembalian_foto', 'public');
+        $fotoPath = $request->file('image')->store('pengembalian_foto', 'public');
 
         Pengembalian::create([
             'user_id' => $user_id,
@@ -98,14 +97,19 @@ class PengembalianController extends Controller
             return back()->with('error', 'Pengembalian sudah disetujui sebelumnya.');
         }
 
-        $barang = $pengembalian->barang;
-        $peminjaman = $pengembalian->peminjaman;
+        DB::beginTransaction();
+        try {
+            $pengembalian->update(['status' => 'approved']);
+            $pengembalian->barang->increment('stock', $pengembalian->jumlah);
+            $pengembalian->peminjaman->update(['status' => 'selesai']);
 
-        $pengembalian->update(['status' => 'approved']);
-        $barang->increment('stock', $pengembalian->jumlah);
-        $peminjaman->update(['status' => 'selesai']);
+            DB::commit();
 
-        return redirect()->route('pengembalian.index')->with('success', 'Pengembalian disetujui. Stok barang telah diperbarui.');
+            return redirect()->route('pengembalian.index')->with('success', 'Pengembalian disetujui. Stok barang telah diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menyetujui pengembalian: ' . $e->getMessage());
+        }
     }
 
     public function reject($id)

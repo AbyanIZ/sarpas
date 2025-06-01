@@ -12,7 +12,7 @@ class Pengembalian extends Model
     protected $table = 'pengembalian';
 
     protected $fillable = [
-        'peminjaman_id', // Ganti peminjaman_id -> borrowing_id
+        'peminjaman_id',
         'user_id',
         'barang_id',
         'image',
@@ -22,27 +22,18 @@ class Pengembalian extends Model
         'keterangan'
     ];
 
-    // Relasi ke peminjaman
-    public function borrowing()
+    public function peminjaman()
     {
         return $this->belongsTo(Peminjaman::class, 'peminjaman_id');
     }
 
-    // Relasi ke Barang
     public function barang()
     {
         return $this->belongsTo(Barang::class);
-    }
-
-    // Relasi ke Peminjaman (menggunakan id sebagai foreign key)
-    public function peminjaman()
-    {
-        return $this->belongsTo(Peminjaman::class, 'id', 'id');
     }
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
 }

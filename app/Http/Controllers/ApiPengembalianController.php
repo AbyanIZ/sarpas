@@ -4,12 +4,28 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengembalian;
 use App\Models\Peminjaman;
-use App\Models\Barang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ApiPengembalianController extends Controller
 {
+    // GET pengembalian milik user yang sedang login
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        $pengembalians = Pengembalian::with(['barang', 'peminjaman'])
+            ->where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return response()->json([
+            'message' => 'Data pengembalian berhasil diambil',
+            'data' => $pengembalians
+        ]);
+    }
+
+    // POST pengembalian
     public function store(Request $request, $id)
     {
         $request->validate([
@@ -22,15 +38,25 @@ class ApiPengembalianController extends Controller
             $user_id = $request->user()->id;
             $peminjaman = Peminjaman::findOrFail($id);
 
-            if (Pengembalian::where('peminjaman_id', $id)->exists()) {
+            // Cek apakah sudah ada pengembalian sebelumnya
+            $exist = Pengembalian::where('peminjaman_id', $id)
+                ->whereIn('status', ['pending', 'approved'])
+                ->exists();
+
+            if ($exist) {
                 return response()->json(['message' => 'Pengembalian untuk peminjaman ini sudah ada'], 400);
+            }
+
+            $fotoPath = null;
+            if ($request->hasFile('image')) {
+                $fotoPath = $request->file('image')->store('pengembalian_foto', 'public');
             }
 
             $pengembalian = Pengembalian::create([
                 'peminjaman_id' => $id,
                 'user_id' => $user_id,
                 'barang_id' => $peminjaman->barang_id,
-                'image' => $request->file('image') ? $request->file('image')->store('images/pengembalian') : null,
+                'image' => $fotoPath,
                 'keterangan' => $request->keterangan,
                 'jumlah' => $peminjaman->jumlah,
                 'tanggal_pengembalian' => now()->toDateString(),
