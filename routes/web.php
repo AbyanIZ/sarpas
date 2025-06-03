@@ -8,6 +8,11 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
+use App\Http\Controllers\LaporanStokController;
+
+// Tambahan untuk export Excel
+use App\Exports\BarangExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 // Route untuk autentikasi
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
@@ -37,6 +42,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/pengguna', [PenggunaController::class, 'index'])->name('pengguna');
     Route::resource('kategori', KategoriBarangController::class);
     Route::resource('barang', BarangController::class);
+
+    // ✅ Route Export Excel Barang
+    Route::get('/laporan-stok/export', function () {
+        return Excel::download(new BarangExport, 'Laporan Barang.xlsx');
+    })->name('laporan-stok.export')->middleware('auth');
 });
 
 // Route untuk register user baru
@@ -61,3 +71,5 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::post('/pengembalian/{id}/approve', [PengembalianController::class, 'approve'])->name('pengembalian.approve');
     Route::post('/pengembalian/{id}/reject', [PengembalianController::class, 'reject'])->name('pengembalian.reject');
 });
+
+Route::get('/laporan-stok', [LaporanStokController::class, 'index'])->name('laporan-stok.index');

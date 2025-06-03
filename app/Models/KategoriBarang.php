@@ -15,5 +15,6 @@ class KategoriBarang extends Model
     {
         return $this->hasMany(Barang::class);
     }
+    
 }
 

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 
 
+    Route::apiResource('barangs', ApiBarangController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pengembalian', [ApiPengembalianController::class, 'store']);
@@ -21,7 +22,6 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::apiResource('users', ApiUserController::class);
-    Route::apiResource('barangs', ApiBarangController::class);
     Route::post('/peminjaman', [ApiPeminjamanController::class, 'store']);
     Route::get('/peminjaman', [ApiPeminjamanController::class, 'index']);
     Route::post('/peminjaman/{id}/approve', [ApiPeminjamanController::class, 'approve']);

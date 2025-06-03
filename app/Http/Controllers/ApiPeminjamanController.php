@@ -70,7 +70,7 @@ class ApiPeminjamanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'barang_id' => 'required|exists:barangs,id',
+            'barang_id' => 'required|integer',
             'jumlah' => 'required|integer|min:1',
             'jatuh_tempo' => 'required|date',
         ]);
@@ -84,8 +84,15 @@ class ApiPeminjamanController extends Controller
             ], 401);
         }
 
-        $barang = Barang::findOrFail($request->barang_id);
+        $barang = Barang::find($request->barang_id);
+        if (!$barang) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Barang tidak ada'
+            ], 404);
+        }
 
+        // Cek stok barang
         if ($barang->stock < $request->jumlah) {
             return response()->json([
                 'status' => false,
@@ -93,6 +100,7 @@ class ApiPeminjamanController extends Controller
             ], 400);
         }
 
+        // Simpan data peminjaman
         $peminjaman = Peminjaman::create([
             'user_id' => $user->id,
             'barang_id' => $request->barang_id,
