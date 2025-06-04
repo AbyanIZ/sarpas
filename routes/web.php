@@ -9,67 +9,73 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\LaporanStokController;
-
-// Tambahan untuk export Excel
+use App\Http\Controllers\LaporanPeminjamanController;
 use App\Exports\BarangExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-// Route untuk autentikasi
-Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.post');
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-// Route untuk dashboard (hanya untuk user yang terautentikasi)
-Route::middleware('auth')->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-// Route untuk halaman pendataan dan laporan
-Route::middleware('auth')->group(function () {
-    Route::get('/pendataan', function () {
-        return view('pendataan');
-    })->name('pendataan');
-    Route::get('/', function () {
-        return redirect('/login');
-    });
-    Route::get('/laporan', function () {
-        return view('laporan');
-    })->name('laporan');
+// Redirect root sesuai status login
+Route::get('/', function () {
+    return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
-// Route untuk pengguna dan kategori barang (hanya untuk user yang terautentikasi)
+// Routes untuk autentikasi
+Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Routes untuk registrasi user biasa (non admin)
+Route::get('/register-user', [AuthController::class, 'showUserRegistrationForm'])->name('register.user');
+Route::post('/register-user', [AuthController::class, 'registerUser'])->name('register.user.store');
+
+// Route dashboard, hanya untuk user login
+Route::middleware('auth')->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+// Group route yang membutuhkan autentikasi
 Route::middleware('auth')->group(function () {
+
+    // Halaman statis pendataan dan laporan
+    Route::view('/pendataan', 'pendataan')->name('pendataan');
+    Route::view('/laporan', 'laporan')->name('laporan');
+
+    // Pengguna dan master data
     Route::get('/pengguna', [PenggunaController::class, 'index'])->name('pengguna');
     Route::resource('kategori', KategoriBarangController::class);
     Route::resource('barang', BarangController::class);
 
-    // ✅ Route Export Excel Barang
+    // Export Excel laporan stok barang
     Route::get('/laporan-stok/export', function () {
         return Excel::download(new BarangExport, 'Laporan Barang.xlsx');
-    })->name('laporan-stok.export')->middleware('auth');
-});
+    })->name('laporan-stok.export');
 
-// Route untuk register user baru
-Route::get('/register-user', [AuthController::class, 'showUserRegistrationForm'])->name('register.user');
-Route::post('/register-user', [AuthController::class, 'registerUser'])->name('register.user.store');
+    // Laporan peminjaman barang
+    Route::get('laporan/peminjaman', [LaporanPeminjamanController::class, 'index'])->name('laporan.peminjaman.index');
+    Route::get('laporan/peminjaman/export', [LaporanPeminjamanController::class, 'exportExcel'])->name('laporan.peminjaman.export');
 
-// Route untuk peminjaman (hanya untuk user yang terautentikasi)
-Route::middleware('auth')->group(function () {
+    // Peminjaman barang CRUD
     Route::resource('peminjaman', PeminjamanController::class);
-    Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('peminjaman.index');
-    Route::get('/peminjaman/create', [PeminjamanController::class, 'create'])->name('peminjaman.create');
-    Route::post('/peminjaman', [PeminjamanController::class, 'store'])->name('peminjaman.store');
     Route::post('/peminjaman/{id}/approve', [PeminjamanController::class, 'approve'])->name('peminjaman.approve');
     Route::post('/peminjaman/{id}/reject', [PeminjamanController::class, 'reject'])->name('peminjaman.reject');
-    Route::delete('/peminjaman/{id}/delete', [PeminjamanController::class, 'deleteHistory'])->name('peminjaman.deleteHistory');
+
+    // Delete peminjaman (riwayat)
+    Route::delete('/peminjaman/{id}', [PeminjamanController::class, 'destroy'])->name('peminjaman.destroy');
 });
 
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('pengembalian.index');
-    Route::get('/pengembalian/create', [PengembalianController::class, 'create'])->name('pengembalian.create');
-    Route::post('/pengembalian', [PengembalianController::class, 'store'])->name('pengembalian.store');
+// Group route admin prefix dan autentikasi untuk pengembalian barang
+Route::prefix('admin')->middleware('auth')->group(function () {
+    Route::resource('pengembalian', PengembalianController::class);
     Route::post('/pengembalian/{id}/approve', [PengembalianController::class, 'approve'])->name('pengembalian.approve');
     Route::post('/pengembalian/{id}/reject', [PengembalianController::class, 'reject'])->name('pengembalian.reject');
 });
 
+// Laporan stok barang (halaman)
 Route::get('/laporan-stok', [LaporanStokController::class, 'index'])->name('laporan-stok.index');

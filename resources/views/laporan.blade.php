@@ -147,7 +147,6 @@
         <main class="flex-1 p-8 z-10">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 <!-- Laporan Stok Barang -->
-                <!-- Laporan Stok Barang -->
 <a href="{{ route('laporan-stok.index') }}" class="block transition-transform hover:scale-[1.01]">
     <div class="report-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl border border-[#333]/50 cursor-pointer">
         <div class="flex items-center mb-4">
@@ -163,7 +162,7 @@
 </a>
 
 <!-- Laporan Peminjaman -->
-<a href="#" class="block transition-transform hover:scale-[1.01]">
+<a href="{{ route('laporan.peminjaman.index') }}" class="block transition-transform hover:scale-[1.01]">
     <div class="report-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl border border-[#333]/50 cursor-pointer">
         <div class="flex items-center mb-4">
             <div class="w-12 h-12 rounded-full bg-[#5abf6a]/10 flex items-center justify-center mr-4">

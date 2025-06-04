@@ -8,31 +8,52 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <style>
         @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
         }
+
         @keyframes drift {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(12px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            50% {
+                transform: translateX(12px);
+            }
         }
+
         .animate-float {
             animation: float 6s ease-in-out infinite;
         }
+
         .animate-drift {
             animation: drift 8s ease-in-out infinite;
         }
+
         .data-card {
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .data-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(106, 166, 255, 0.1);
         }
+
         .btn-primary {
             background-image: linear-gradient(to right, #6aa6ff, #4d73e6);
             transition: all 0.3s ease;
         }
+
         .btn-primary:hover {
             background-image: linear-gradient(to right, #5a95e8, #3f63d4);
             transform: scale(1.02);
@@ -169,7 +190,7 @@
                                     <span class="text-gray-600">-</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-left font-semibold text-white">
+                            <td class="px-6 py-4 text-center text-gray-300">
                                 {{ $barang->nama_barang }}
                             </td>
                             <td class="px-6 py-4 text-center text-gray-300">

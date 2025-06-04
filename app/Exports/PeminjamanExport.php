@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Barang;
+use App\Models\Peminjaman;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -15,32 +15,39 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEvents, WithTitle
+class PeminjamanExport implements FromCollection, WithHeadings, WithStyles, WithEvents, WithTitle
 {
-    protected $kategoriId;
+    protected $start;
+    protected $end;
 
-    public function __construct($kategoriId = null)
+    public function __construct($start = null, $end = null)
     {
-        $this->kategoriId = $kategoriId;
+        $this->start = $start;
+        $this->end = $end;
     }
 
     public function collection()
     {
-        $data = Barang::with('kategori')
-            ->when($this->kategoriId, function ($query) {
-                $query->where('kategori_id', $this->kategoriId);
-            })
-            ->get();
+        $query = Peminjaman::with(['barang', 'user', 'approvedByUser']);
+
+        if ($this->start && $this->end) {
+            $query->whereBetween('tanggal_pinjam', [$this->start, $this->end]);
+        }
+
+        $data = $query->get();
 
         $rows = [];
         $no = 1;
-        foreach ($data as $item) {
+        foreach ($data as $p) {
             $rows[] = [
                 'No' => $no++,
-                'Nama Barang' => $item->nama_barang,
-                'Stock' => $item->stock,
-                'Kategori' => $item->kategori->nama_kategori ?? '-',
-                'Tanggal' => $item->created_at->format('d-m-Y'),
+                'ID' => $p->id,
+                'Nama Barang' => $p->barang->nama_barang ?? '-',
+                'Nama Peminjam' => $p->user->name ?? '-',
+                'Tanggal Pinjam' => $p->tanggal_pinjam,
+                'Tanggal Kembali' => $p->tanggal_kembali ?? '-',
+                'Status' => $p->status,
+                'Disetujui Oleh' => $p->approvedByUser->name ?? '-',
             ];
         }
 
@@ -51,10 +58,13 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
     {
         return [
             'No',
+            'ID',
             'Nama Barang',
-            'Stock',
-            'Kategori',
-            'Tanggal',
+            'Nama Peminjam',
+            'Tanggal Pinjam',
+            'Tanggal Kembali',
+            'Status',
+            'Disetujui Oleh',
         ];
     }
 
@@ -62,7 +72,7 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
     {
         // Bold untuk header
         return [
-            1 => [
+            1 => [ // Changed to row 2 because we'll add a title in row 1
                 'font' => ['bold' => true, 'size' => 12],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 'fill' => [
@@ -94,8 +104,12 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
                 $sheet->getStyle("A2:{$columnCount}{$rowCount}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                // Tambahkan judul besar di atas (merge A1-E1 jika ada 5 kolom)
-                $judul = 'Laporan Barang';
+                // Tambahkan judul besar di atas (merge cells)
+                $judul = 'Laporan Peminjaman';
+                if ($this->start && $this->end) {
+                    $judul .= ' (' . $this->start . ' hingga ' . $this->end . ')';
+                }
+
                 $sheet->insertNewRowBefore(1, 1); // sisipkan baris baru
                 $sheet->mergeCells("A1:{$columnCount}1");
                 $sheet->setCellValue("A1", $judul);
@@ -115,6 +129,6 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
 
     public function title(): string
     {
-        return 'Laporan Barang';
+        return 'Laporan Peminjaman';
     }
 }

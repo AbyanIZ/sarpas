@@ -6,13 +6,14 @@ use App\Models\Peminjaman;
 use App\Models\Barang;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PeminjamanController extends Controller
 {
     public function index()
     {
-        // Tampilkan data terbaru di atas
-        $peminjamans = Peminjaman::with(['user', 'barang'])->latest()->get();
+        // Ambil data peminjaman lengkap dengan relasi user dan barang, terbaru di atas
+        $peminjamans = Peminjaman::with(['user', 'barang', 'approvedBy'])->latest()->get();
         return view('peminjaman.index', compact('peminjamans'));
     }
 
@@ -33,10 +34,10 @@ class PeminjamanController extends Controller
             'tanggal_kembali' => 'required|date|after_or_equal:tanggal_pinjam',
         ]);
 
-        $barang = Barang::find($request->barang_id);
+        $barang = Barang::findOrFail($request->barang_id);
 
         if ($barang->stock < $request->jumlah) {
-            return back()->with('error', 'Stok barang tidak mencukupi. Stok saat ini: ' . $barang->stock);
+            return back()->with('error', 'Stok barang tidak mencukupi. Stok saat ini: ' . $barang->stock)->withInput();
         }
 
         Peminjaman::create([
@@ -59,10 +60,14 @@ class PeminjamanController extends Controller
             return back()->withErrors(['stok' => 'Stok barang tidak cukup untuk peminjaman. Stok saat ini: ' . $peminjaman->barang->stock]);
         }
 
-        $peminjaman->update(['status' => 'approved']);
+        DB::transaction(function () use ($peminjaman) {
+            $peminjaman->update([
+                'status' => 'approved',
+                'approved_by' => auth()->id(),
+            ]);
 
-        // Kurangi stok barang
-        $peminjaman->barang->decrement('stock', $peminjaman->jumlah);
+            $peminjaman->barang->decrement('stock', $peminjaman->jumlah);
+        });
 
         return back()->with('success', 'Peminjaman disetujui dan stok barang telah dikurangi.');
     }
@@ -70,7 +75,15 @@ class PeminjamanController extends Controller
     public function reject($id)
     {
         $peminjaman = Peminjaman::findOrFail($id);
-        $peminjaman->update(['status' => 'rejected']);
+
+        if ($peminjaman->status !== 'pending') {
+            return back()->with('error', 'Hanya peminjaman dengan status pending yang bisa ditolak.');
+        }
+
+        $peminjaman->update([
+            'status' => 'rejected',
+            'approved_by' => auth()->id(),
+        ])->with('error', 'Peminjaman ditolak.');
 
         return back()->with('error', 'Peminjaman ditolak.');
     }
