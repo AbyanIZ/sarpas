@@ -439,8 +439,6 @@
                             ctx = chart.ctx;
 
                         ctx.restore();
-
-                        // Draw outer circle glow effect
                         ctx.beginPath();
                         ctx.arc(width / 2, height / 2, (Math.min(width, height) / 2) - 5, 0, 2 * Math.PI);
                         ctx.shadowColor = 'rgba(106, 166, 255, 0.3)';
@@ -451,7 +449,6 @@
                         ctx.stroke();
                         ctx.shadowColor = 'transparent';
 
-                        // Draw center text
                         const fontSize = (height / 8).toFixed(2);
                         ctx.font = `bold ${fontSize}px sans-serif`;
                         ctx.textBaseline = 'middle';
@@ -560,13 +557,11 @@
                     calendarDays.appendChild(emptyDay);
                 }
 
-                // Add days of the month
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayElement = document.createElement('div');
                     dayElement.className =
                         'calendar-day h-8 w-8 rounded-full flex items-center justify-center text-sm cursor-pointer';
 
-                    // Highlight current day
                     if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
                         dayElement.classList.add('current-day');
                     } else {
@@ -575,18 +570,15 @@
 
                     dayElement.textContent = day;
                     dayElement.addEventListener('click', function() {
-                        // Remove current-day class from all days
                         document.querySelectorAll('.calendar-day').forEach(el => {
                             el.classList.remove('current-day');
                         });
-                        // Add to clicked day
                         this.classList.add('current-day');
                     });
                     calendarDays.appendChild(dayElement);
                 }
             }
 
-            // Navigation
             prevMonthBtn.addEventListener('click', function() {
                 currentMonth--;
                 if (currentMonth < 0) {
@@ -604,8 +596,6 @@
                 }
                 renderCalendar(currentMonth, currentYear);
             });
-
-            // Initial render
             renderCalendar(currentDate.getMonth(), currentDate.getFullYear());
         });
     </script>

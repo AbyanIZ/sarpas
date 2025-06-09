@@ -15,11 +15,16 @@ class Pengembalian extends Model
         'peminjaman_id',
         'user_id',
         'barang_id',
+        'approved_by',
         'image',
         'jumlah',
         'status',
         'tanggal_pengembalian',
-        'keterangan'
+        'keterangan',
+    ];
+
+    protected $casts = [
+        'tanggal_pengembalian' => 'datetime',
     ];
 
     public function peminjaman()
@@ -29,11 +34,16 @@ class Pengembalian extends Model
 
     public function barang()
     {
-        return $this->belongsTo(Barang::class);
+        return $this->belongsTo(Barang::class, 'barang_id');
     }
 
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
     }
 }

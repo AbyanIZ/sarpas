@@ -10,6 +10,7 @@ use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
 use App\Http\Controllers\LaporanStokController;
 use App\Http\Controllers\LaporanPeminjamanController;
+use App\Http\Controllers\LaporanPengembalianController;
 use App\Exports\BarangExport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -60,6 +61,9 @@ Route::middleware('auth')->group(function () {
     // Laporan peminjaman barang
     Route::get('laporan/peminjaman', [LaporanPeminjamanController::class, 'index'])->name('laporan.peminjaman.index');
     Route::get('laporan/peminjaman/export', [LaporanPeminjamanController::class, 'exportExcel'])->name('laporan.peminjaman.export');
+    Route::get('/laporan/pengembalian', [LaporanPengembalianController::class, 'index'])->name('laporan.pengembalian.index');
+    Route::get('/laporan/pengembalian/export', [LaporanPengembalianController::class, 'exportExcel'])->name('laporan.pengembalian.export');
+
 
     // Peminjaman barang CRUD
     Route::resource('peminjaman', PeminjamanController::class);

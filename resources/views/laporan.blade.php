@@ -177,7 +177,7 @@
 </a>
 
 <!-- Laporan Pengembalian -->
-<a href="#" class="block transition-transform hover:scale-[1.01]">
+<a href="{{ route('laporan.pengembalian.index') }}" class="block transition-transform hover:scale-[1.01]">
     <div class="report-card bg-gradient-to-br from-[#1f1f1f] to-[#2a2a2a] p-6 rounded-xl border border-[#333]/50 cursor-pointer">
         <div class="flex items-center mb-4">
             <div class="w-12 h-12 rounded-full bg-[#e8a162]/10 flex items-center justify-center mr-4">

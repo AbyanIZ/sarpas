@@ -70,9 +70,8 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithStyles, With
 
     public function styles(Worksheet $sheet)
     {
-        // Bold untuk header
         return [
-            1 => [ // Changed to row 2 because we'll add a title in row 1
+            1 => [
                 'font' => ['bold' => true, 'size' => 12],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 'fill' => [
@@ -91,26 +90,22 @@ class PeminjamanExport implements FromCollection, WithHeadings, WithStyles, With
                 $rowCount = $sheet->getHighestRow();
                 $columnCount = $sheet->getHighestColumn();
 
-                // Atur lebar kolom otomatis
                 foreach (range('A', $columnCount) as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
 
-                // Border semua cell
                 $sheet->getStyle("A1:{$columnCount}{$rowCount}")
                     ->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
 
-                // Rata tengah semua isi
                 $sheet->getStyle("A2:{$columnCount}{$rowCount}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                // Tambahkan judul besar di atas (merge cells)
                 $judul = 'Laporan Peminjaman';
                 if ($this->start && $this->end) {
                     $judul .= ' (' . $this->start . ' hingga ' . $this->end . ')';
                 }
 
-                $sheet->insertNewRowBefore(1, 1); // sisipkan baris baru
+                $sheet->insertNewRowBefore(1, 1);
                 $sheet->mergeCells("A1:{$columnCount}1");
                 $sheet->setCellValue("A1", $judul);
                 $sheet->getStyle("A1")->applyFromArray([

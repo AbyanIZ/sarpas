@@ -12,7 +12,7 @@ class PengembalianController extends Controller
 {
     public function index()
     {
-        // Menampilkan pengembalian terbaru di atas
+        // Menampilkan pengembalian terbaru di atas, termasuk relasi barang dan user
         $pengembalians = Pengembalian::with(['barang', 'user'])->latest()->get();
         $totalPengembalian = $pengembalians->count();
 
@@ -23,11 +23,13 @@ class PengembalianController extends Controller
     {
         $user_id = auth()->id();
 
+        // Ambil peminjaman user yang sudah disetujui dan belum diajukan pengembalian
         $peminjamans = Peminjaman::with('barang')
             ->where('user_id', $user_id)
             ->where('status', 'approved')
             ->get();
 
+        // Filter peminjaman yang belum ada pengembalian dengan status pending atau approved
         $peminjamansFiltered = $peminjamans->filter(function ($peminjaman) {
             $pengembalianAda = $peminjaman->pengembalians()
                 ->whereIn('status', ['pending', 'approved'])
@@ -52,6 +54,7 @@ class PengembalianController extends Controller
 
         $user_id = auth()->id();
 
+        // Cari peminjaman aktif user untuk barang yang dikembalikan
         $peminjaman = Peminjaman::where([
             ['user_id', $user_id],
             ['barang_id', $request->barang_id],
@@ -66,6 +69,7 @@ class PengembalianController extends Controller
             return back()->withErrors(['jumlah' => 'Jumlah pengembalian tidak boleh lebih dari jumlah barang yang dipinjam (' . $peminjaman->jumlah . ').'])->withInput();
         }
 
+        // Cek apakah sudah ada pengembalian dengan status pending/approved untuk peminjaman ini
         $sudahAjukan = Pengembalian::where('peminjaman_id', $peminjaman->id)
             ->whereIn('status', ['pending', 'approved'])
             ->exists();
@@ -74,8 +78,10 @@ class PengembalianController extends Controller
             return back()->withErrors(['barang_id' => 'Pengembalian untuk barang ini sudah diajukan.'])->withInput();
         }
 
+        // Simpan foto pengembalian
         $fotoPath = $request->file('image')->store('pengembalian_foto', 'public');
 
+        // Buat data pengembalian baru
         Pengembalian::create([
             'user_id' => $user_id,
             'barang_id' => $request->barang_id,

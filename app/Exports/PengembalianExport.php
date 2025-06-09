@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\Barang;
+use App\Models\Pengembalian;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -15,32 +15,39 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use Maatwebsite\Excel\Events\AfterSheet;
 
-class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEvents, WithTitle
+class PengembalianExport implements FromCollection, WithHeadings, WithStyles, WithEvents, WithTitle
 {
-    protected $kategoriId;
+    protected $start;
+    protected $end;
 
-    public function __construct($kategoriId = null)
+    public function __construct($start = null, $end = null)
     {
-        $this->kategoriId = $kategoriId;
+        $this->start = $start;
+        $this->end = $end;
     }
 
     public function collection()
     {
-        $data = Barang::with('kategori')
-            ->when($this->kategoriId, function ($query) {
-                $query->where('kategori_id', $this->kategoriId);
-            })
-            ->get();
+        $query = Pengembalian::with(['user', 'approvedBy', 'barang'])->orderBy('created_at', 'desc');
+
+        if ($this->start && $this->end) {
+            $query->whereBetween('tanggal_pengembalian', [$this->start, $this->end]);
+        }
+
+        $data = $query->get();
 
         $rows = [];
         $no = 1;
         foreach ($data as $item) {
             $rows[] = [
                 'No' => $no++,
-                'Nama Barang' => $item->nama_barang,
-                'Stock' => $item->stock,
-                'Kategori' => $item->kategori->nama_kategori ?? '-',
-                'Tanggal' => $item->created_at->format('d-m-Y'),
+                'ID' => $item->id,
+                'Nama User' => $item->user->name ?? '-',
+                'Nama Barang' => $item->barang->nama_barang ?? '-',
+                'Jumlah' => $item->jumlah,
+                'Tanggal Pengembalian' => $item->tanggal_pengembalian ? $item->tanggal_pengembalian->format('Y-m-d H:i:s') : '-',
+                'Status' => $item->status ?? '-',
+                'Keterangan' => $item->keterangan ?? '-',
             ];
         }
 
@@ -51,10 +58,13 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
     {
         return [
             'No',
+            'ID',
+            'Nama User',
             'Nama Barang',
-            'Stock',
-            'Kategori',
-            'Tanggal',
+            'Jumlah',
+            'Tanggal Pengembalian',
+            'Status',
+            'Keterangan',
         ];
     }
 
@@ -80,6 +90,7 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
                 $rowCount = $sheet->getHighestRow();
                 $columnCount = $sheet->getHighestColumn();
 
+                // Autosize kolom
                 foreach (range('A', $columnCount) as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
@@ -90,7 +101,11 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
                 $sheet->getStyle("A2:{$columnCount}{$rowCount}")
                     ->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
-                $judul = 'Laporan Barang';
+                $judul = 'Laporan Pengembalian';
+                if ($this->start && $this->end) {
+                    $judul .= " ({$this->start} hingga {$this->end})";
+                }
+
                 $sheet->insertNewRowBefore(1, 1);
                 $sheet->mergeCells("A1:{$columnCount}1");
                 $sheet->setCellValue("A1", $judul);
@@ -110,6 +125,6 @@ class BarangExport implements FromCollection, WithHeadings, WithStyles, WithEven
 
     public function title(): string
     {
-        return 'Laporan Barang';
+        return 'Laporan Pengembalian';
     }
 }
