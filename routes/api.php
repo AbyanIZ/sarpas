@@ -10,13 +10,19 @@ use Illuminate\Http\Request;
 
 
 
-    Route::apiResource('barangs', ApiBarangController::class);
+Route::apiResource('barangs', ApiBarangController::class);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pengembalian', [ApiPengembalianController::class, 'store']);
 });
 Route::post('/login', [AuthController::class, 'apiLogin']);
-Route::middleware('auth:sanctum')->delete('/logout', [AuthController::class, 'apiLogout']);
+Route::middleware('auth:sanctum')->delete('/logout', function (Request $request) {
+    $request->user()->currentAccessToken()->delete();
+
+    return response()->json([
+        'message' => 'Logout berhasil'
+    ]);
+});
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -29,14 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-    // ... rute lainnya
 
-    // Rute Pengembalian
-    Route::post('/pengembalian/{peminjaman_id}', [ApiPengembalianController::class, 'store']); // Menggunakan ID peminjaman di URL
-    Route::get('/pengembalian', [ApiPengembalianController::class, 'index']); // Untuk melihat daftar pengembalian
-    Route::post('/pengembalian/{id}/approve', [ApiPengembalianController::class, 'approve']); // Approve pengembalian
-    Route::post('/pengembalian/{id}/reject', [ApiPengembalianController::class, 'reject']); // Reject pengembalian
+    Route::post('/pengembalian/{peminjaman_id}', [ApiPengembalianController::class, 'store']);
+    Route::get('/pengembalian', [ApiPengembalianController::class, 'index']);
+    Route::get('/pengembalian/{id}', [ApiPengembalianController::class, 'show']);
+    Route::post('/pengembalian/{id}/approve', [ApiPengembalianController::class, 'approve']);
+    Route::post('/pengembalian/{id}/reject', [ApiPengembalianController::class, 'reject']);
 
-    // Opsional - jika butuh rute khusus
-    Route::get('/pengembalian/user', [ApiPengembalianController::class, 'userReturns']); // Pengembalian oleh user tertentu
+    Route::get('/pengembalian/user', [ApiPengembalianController::class, 'userReturns']);
 });

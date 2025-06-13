@@ -80,10 +80,11 @@ class PeminjamanController extends Controller
             return back()->with('error', 'Hanya peminjaman dengan status pending yang bisa ditolak.');
         }
 
+        // ✅ PERBAIKAN DISINI: pisahkan update dan return
         $peminjaman->update([
             'status' => 'rejected',
             'approved_by' => auth()->id(),
-        ])->with('error', 'Peminjaman ditolak.');
+        ]);
 
         return back()->with('error', 'Peminjaman ditolak.');
     }
